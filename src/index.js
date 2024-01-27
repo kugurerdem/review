@@ -1,5 +1,7 @@
 const
     fastify = require('fastify'),
+    fastifySwagger = require('@fastify/swagger'),
+    fastifySwaggerUI = require('@fastify/swagger-ui'),
     {debuglog} = require('util'),
     routes = require('./routes'),
 
@@ -9,12 +11,20 @@ const
         logger: true // TODO: can implement a customLogger
     }),
 
-    main = () => {
+    main = async () => {
+        await server.register(fastifySwagger)
+        await server.register(fastifySwaggerUI)
+
         routes.forEach(routeOptions => server.route(routeOptions))
 
-        server.listen(3000, (err, address) => {
-            debug(`Server listening on ${address}`)
+        await server.ready()
+        server.swagger()
+
+        server.listen({
+            host: 'localhost',
+            port: 3000,
         })
     }
+
 
 main()
